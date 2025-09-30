@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		C819A9412E8BE7D500B61261 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = C819A9402E8BE7D500B61261 /* SnapKit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		C819A8BB2E8BBB9A00B61261 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -65,6 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C819A9412E8BE7D500B61261 /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +130,7 @@
 			);
 			name = CurrencyConverter;
 			packageProductDependencies = (
+				C819A9402E8BE7D500B61261 /* SnapKit */,
 			);
 			productName = CurrencyConverter;
 			productReference = C819A8A12E8BBB9800B61261 /* CurrencyConverter.app */;
@@ -208,6 +214,9 @@
 			);
 			mainGroup = C819A8982E8BBB9800B61261;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C819A93F2E8BE7D500B61261 /* XCRemoteSwiftPackageReference "SnapKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C819A8A22E8BBB9800B61261 /* Products */;
 			projectDirPath = "";
@@ -575,6 +584,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C819A93F2E8BE7D500B61261 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.7.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C819A9402E8BE7D500B61261 /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C819A93F2E8BE7D500B61261 /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C819A8992E8BBB9800B61261 /* Project object */;
 }
