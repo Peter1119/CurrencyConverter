@@ -8,21 +8,36 @@
 import UIKit
 import SnapKit
 
-final class ExchangeRateCell: UIView {
-    
-    private var model: ExchangeRateCellModel
-    
-    init(_ model: ExchangeRateCellModel) {
-        self.model = model
-        super.init(frame: .zero)
+final class ExchangeRateCell: UITableViewCell {
 
-        self.setup()
-        self.layout()
-        self.setupActions()
+    private var model: ExchangeRateCellModel?
+
+    override init(
+        style: UITableViewCell.CellStyle,
+        reuseIdentifier: String?
+    ) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setup()
+        layout()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        favoriteButton.removeTarget(nil, action: nil, for: .allEvents)
+    }
+
+    func configure(with model: ExchangeRateCellModel) {
+        self.model = model
+        updateUI()
+
+        favoriteButton.removeTarget(nil, action: nil, for: .allEvents)
+        favoriteButton.addAction(UIAction(handler: { [weak model] _ in
+            model?.onFavoriteTap?()
+        }), for: .touchUpInside)
     }
     
     override func layoutSubviews() {
@@ -31,31 +46,25 @@ final class ExchangeRateCell: UIView {
     }
 
     private func updateUI() {
+        guard let model = model else { return }
         currencyLabel.text = model.currency
         explanationLabel.text = model.description
         rateLabel.text = model.rateText
         trendIndicatorLabel.text = model.trendEmoji
         favoriteButton.isSelected = model.isFavorite
     }
-
-    private func setupActions() {
-        favoriteButton.addAction(UIAction(handler: { [weak model] _ in
-            model?.isFavorite.toggle()
-            model?.onTap?(model?.id ?? String())
-        }), for: .touchUpInside)
-    }
     
     private let currencyLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 17, weight: .medium)
+        label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textColor = .label
         return label
     }()
-    
+
     private let explanationLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 13)
-        label.textColor = .secondaryLabel
+        label.font = .systemFont(ofSize: 14)
+        label.textColor = .gray
         return label
     }()
     
@@ -70,7 +79,8 @@ final class ExchangeRateCell: UIView {
     
     private let rateLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 17, weight: .medium)
+        label.font = .systemFont(ofSize: 16)
+        label.textAlignment = .right
         label.textColor = .gray
         return label
     }()
@@ -96,39 +106,52 @@ final class ExchangeRateCell: UIView {
         stack.addArrangedSubview(rateLabel)
         stack.addArrangedSubview(trendIndicatorLabel)
         stack.addArrangedSubview(favoriteButton)
-        stack.setCustomSpacing(8, after: trendIndicatorLabel)
         stack.alignment = .center
         stack.spacing = 4
         return stack
     }()
 
-    
+
     private func setup() {
-        self.addSubview(currencyStackView)
-        self.addSubview(rightContentView)
+        selectionStyle = .none
+        contentView.addSubview(currencyStackView)
+        contentView.addSubview(rightContentView)
     }
     
     private func layout() {
-        currencyStackView.snp.makeConstraints { make in
-            make.centerY.equalToSuperview()
-            make.leading.equalToSuperview().inset(16)
-            make.verticalEdges.equalToSuperview().inset(8)
+        contentView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.height.equalTo(60)
         }
-        
-        rightContentView.snp.makeConstraints { make in
+
+        currencyStackView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(16)
             make.centerY.equalToSuperview()
-            make.right.equalToSuperview().inset(16)
+        }
+
+        rightContentView.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().offset(-16)
+            make.centerY.equalToSuperview()
+            make.leading.greaterThanOrEqualTo(currencyStackView.snp.trailing).offset(16)
+        }
+
+        rateLabel.snp.makeConstraints { make in
+            make.width.equalTo(120)
+        }
+
+        favoriteButton.snp.makeConstraints { make in
+            make.size.equalTo(44)
         }
     }
 }
 
 #Preview {
-    ExchangeRateCell(
-        ExchangeRateCellModel(
-            currency: "USD",
-            description: "달러",
-            rate: 89.8234,
-            isIncreasing: true
-        )
-    )
+    let cell = ExchangeRateCell(style: .default, reuseIdentifier: nil)
+    cell.configure(with: ExchangeRateCellModel(
+        currency: "USD",
+        description: "달러",
+        rate: 89.8234,
+        isIncreasing: true
+    ))
+    return cell
 }
