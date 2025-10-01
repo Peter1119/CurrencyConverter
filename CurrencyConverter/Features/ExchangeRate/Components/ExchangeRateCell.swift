@@ -8,21 +8,43 @@
 import UIKit
 import SnapKit
 
-final class ExchangeRateCell: UIView {
-    
-    private var model: ExchangeRateCellModel
-    
-    init(_ model: ExchangeRateCellModel) {
-        self.model = model
-        super.init(frame: .zero)
+final class ExchangeRateCell: UITableViewCell {
 
-        self.setup()
-        self.layout()
-        self.setupActions()
+    private var model: ExchangeRateCellModel?
+
+    override init(
+        style: UITableViewCell.CellStyle,
+        reuseIdentifier: String?
+    ) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setup()
+        layout()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        favoriteButton.removeTarget(nil, action: nil, for: .allEvents)
+    }
+
+    func configure(
+        with model: ExchangeRateCellModel,
+        onTapAction: ((String) async -> Void)? = nil
+    ) {
+        self.model = model
+        updateUI()
+
+        favoriteButton.removeTarget(nil, action: nil, for: .allEvents)
+
+        let modelId = model.id
+        favoriteButton.addAction(UIAction(handler: { _ in
+            Task {
+                await onTapAction?(modelId)
+            }
+        }), for: .touchUpInside)
     }
     
     override func layoutSubviews() {
@@ -31,18 +53,12 @@ final class ExchangeRateCell: UIView {
     }
 
     private func updateUI() {
+        guard let model = model else { return }
         currencyLabel.text = model.currency
         explanationLabel.text = model.description
         rateLabel.text = model.rateText
         trendIndicatorLabel.text = model.trendEmoji
         favoriteButton.isSelected = model.isFavorite
-    }
-
-    private func setupActions() {
-        favoriteButton.addAction(UIAction(handler: { [weak model] _ in
-            model?.isFavorite.toggle()
-            model?.onTap?(model?.id ?? String())
-        }), for: .touchUpInside)
     }
     
     private let currencyLabel: UILabel = {
@@ -102,10 +118,11 @@ final class ExchangeRateCell: UIView {
         return stack
     }()
 
-    
+
     private func setup() {
-        self.addSubview(currencyStackView)
-        self.addSubview(rightContentView)
+        selectionStyle = .none
+        contentView.addSubview(currencyStackView)
+        contentView.addSubview(rightContentView)
     }
     
     private func layout() {
@@ -123,12 +140,12 @@ final class ExchangeRateCell: UIView {
 }
 
 #Preview {
-    ExchangeRateCell(
-        ExchangeRateCellModel(
-            currency: "USD",
-            description: "달러",
-            rate: 89.8234,
-            isIncreasing: true
-        )
-    )
+    let cell = ExchangeRateCell(style: .default, reuseIdentifier: nil)
+    cell.configure(with: ExchangeRateCellModel(
+        currency: "USD",
+        description: "달러",
+        rate: 89.8234,
+        isIncreasing: true
+    ))
+    return cell
 }
