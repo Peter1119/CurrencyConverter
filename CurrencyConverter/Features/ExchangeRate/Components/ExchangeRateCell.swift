@@ -56,15 +56,15 @@ final class ExchangeRateCell: UITableViewCell {
     
     private let currencyLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 17, weight: .medium)
+        label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textColor = .label
         return label
     }()
-    
+
     private let explanationLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 13)
-        label.textColor = .secondaryLabel
+        label.font = .systemFont(ofSize: 14)
+        label.textColor = .gray
         return label
     }()
     
@@ -79,7 +79,8 @@ final class ExchangeRateCell: UITableViewCell {
     
     private let rateLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 17, weight: .medium)
+        label.font = .systemFont(ofSize: 16)
+        label.textAlignment = .right
         label.textColor = .gray
         return label
     }()
@@ -118,17 +119,26 @@ final class ExchangeRateCell: UITableViewCell {
     }
     
     private func layout() {
+        contentView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.height.equalTo(60)
+        }
+
         currencyStackView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(16)
             make.centerY.equalToSuperview()
-            make.leading.equalToSuperview().inset(16)
-            make.verticalEdges.equalToSuperview().inset(8)
         }
-        
+
         rightContentView.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().offset(-16)
             make.centerY.equalToSuperview()
-            make.right.equalToSuperview().inset(16)
+            make.leading.greaterThanOrEqualTo(currencyStackView.snp.trailing).offset(16)
         }
-        
+
+        rateLabel.snp.makeConstraints { make in
+            make.width.equalTo(120)
+        }
+
         favoriteButton.snp.makeConstraints { make in
             make.size.equalTo(44)
         }
