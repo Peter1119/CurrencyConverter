@@ -30,20 +30,13 @@ final class ExchangeRateCell: UITableViewCell {
         favoriteButton.removeTarget(nil, action: nil, for: .allEvents)
     }
 
-    func configure(
-        with model: ExchangeRateCellModel,
-        onTapAction: ((String) async -> Void)? = nil
-    ) {
+    func configure(with model: ExchangeRateCellModel) {
         self.model = model
         updateUI()
 
         favoriteButton.removeTarget(nil, action: nil, for: .allEvents)
-
-        let modelId = model.id
-        favoriteButton.addAction(UIAction(handler: { _ in
-            Task {
-                await onTapAction?(modelId)
-            }
+        favoriteButton.addAction(UIAction(handler: { [weak model] _ in
+            model?.onFavoriteTap?()
         }), for: .touchUpInside)
     }
     
@@ -112,7 +105,6 @@ final class ExchangeRateCell: UITableViewCell {
         stack.addArrangedSubview(rateLabel)
         stack.addArrangedSubview(trendIndicatorLabel)
         stack.addArrangedSubview(favoriteButton)
-        stack.setCustomSpacing(8, after: trendIndicatorLabel)
         stack.alignment = .center
         stack.spacing = 4
         return stack
@@ -135,6 +127,10 @@ final class ExchangeRateCell: UITableViewCell {
         rightContentView.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
             make.right.equalToSuperview().inset(16)
+        }
+        
+        favoriteButton.snp.makeConstraints { make in
+            make.size.equalTo(44)
         }
     }
 }

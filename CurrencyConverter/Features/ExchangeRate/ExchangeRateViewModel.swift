@@ -36,18 +36,31 @@ final class ExchangeRateViewModel: ViewModelProtocol {
     func send(_ action: Action) async {
         switch action {
         case .loadExchangeRates:
-            state.allItems = ExchangeRateCellModel.mockData
+            state.allItems = ExchangeRateCellModel.mockData.map { [weak self] model in
+                model.onFavoriteTap = {
+                    Task {
+                        await self?.send(.toggleFavorite(model.id))
+                    }
+                }
+                return model
+            }
 
         case .toggleFavorite(let id):
             guard let index = state.allItems.firstIndex(where: { $0.id == id }) else { return }
-            print("어느게 들어오는거야 ? \(id)")
             state.allItems[index].isFavorite.toggle()
 
         case .updateSearchText(let text):
             state.searchText = text
 
         case .refresh:
-            state.allItems = ExchangeRateCellModel.mockData
+            state.allItems = ExchangeRateCellModel.mockData.map { [weak self] model in
+                model.onFavoriteTap = {
+                    Task {
+                        await self?.send(.toggleFavorite(model.id))
+                    }
+                }
+                return model
+            }
         }
     }
 }

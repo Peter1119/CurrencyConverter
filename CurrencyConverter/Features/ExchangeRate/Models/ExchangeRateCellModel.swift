@@ -24,6 +24,7 @@ class ExchangeRateCellModel {
     }
     var isIncreasing: Bool
     var isFavorite: Bool = false
+    var onFavoriteTap: (() -> Void)?
 
     init(
         currency: String,

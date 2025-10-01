@@ -78,12 +78,17 @@ extension ExchangeRateViewController: UITableViewDataSource {
         cellForRowAt indexPath: IndexPath
     ) -> UITableViewCell {
         let cell: ExchangeRateCell = tableView.dequeueReusableCell(for: indexPath)
-        cell.configure(with: viewModel.state.items[indexPath.row]) { [weak viewModel] id in
-            Task {
-                await viewModel?.send(.toggleFavorite(id))
-            }
-        }
+        cell.configure(with: viewModel.state.items[indexPath.row])
         return cell
+    }
+
+    func tableView(
+        _ tableView: UITableView,
+        didSelectRowAt indexPath: IndexPath
+    ) {
+        let model = viewModel.state.items[indexPath.row]
+        // TODO: 화면 이동
+        print("셀 선택: \(model.currency)")
     }
 }
 
