@@ -1,5 +1,5 @@
 //
-//  ExchangeRateInfo.swift
+//  ExchangeRateList.swift
 //  CurrencyConverter
 //
 //  Created by 홍석현 on 10/1/25.
@@ -7,8 +7,8 @@
 
 import Foundation
 
-public struct ExchangeRateInfo {
-    let rates: [ExchangeInfo]
+public struct ExchangeRateList {
+    let rates: [ExchangeRate]
     let lastUpdateTime: Date
     let nextUpdateTime: Date
     
@@ -20,7 +20,7 @@ public struct ExchangeRateInfo {
         let locale: Locale = Locale(identifier: "ko_KR")
         self.rates = rates.map({ (code, rate) in
             let localizedName = locale.localizedString(forCurrencyCode: code) ?? code
-            return ExchangeInfo(
+            return ExchangeRate(
                 code: code,
                 name: localizedName,
                 rate: rate
@@ -32,7 +32,7 @@ public struct ExchangeRateInfo {
 }
 
 
-public struct ExchangeInfo {
+public struct ExchangeRate {
     let code: String
     let name: String
     let rate: Double

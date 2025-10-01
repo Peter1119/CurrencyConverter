@@ -1,5 +1,5 @@
 //
-//  MockCurrencyRateRepository.swift
+//  MockExchangeRateRepository.swift
 //  CurrencyConverterTests
 //
 //  Created by 홍석현 on 10/1/25.
@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - Mock Repository
-final class MockCurrencyRateRepository: CurrencyRateRepository {
+final class MockExchangeRateRepository: ExchangeRateRepository {
     var fetchCallCount = 0
     var shouldThrowError = false
 
@@ -16,14 +16,14 @@ final class MockCurrencyRateRepository: CurrencyRateRepository {
         self.shouldThrowError = shouldThrowError
     }
 
-    func fetchExchangeRates() async throws -> ExchangeRateInfo {
+    func fetch() async throws -> ExchangeRateList {
         fetchCallCount += 1
 
         if shouldThrowError {
-            throw FetchCurrencyRateError.networkError
+            throw FetchExchangeRateError.networkError
         }
 
-        return ExchangeRateInfo(
+        return ExchangeRateList(
             rates: [
                 "USD": 1.0,
                 "KRW": 1300.50,

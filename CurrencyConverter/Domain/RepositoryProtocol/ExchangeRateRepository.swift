@@ -7,6 +7,6 @@
 
 import Foundation
 
-protocol CurrencyRateRepository {
-    func fetchExchangeRates() async throws -> ExchangeRateInfo
+protocol ExchangeRateRepository {
+    func fetch() async throws -> ExchangeRateList
 }

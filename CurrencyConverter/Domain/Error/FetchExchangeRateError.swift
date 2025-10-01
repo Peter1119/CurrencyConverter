@@ -7,12 +7,12 @@
 
 import Foundation
 
-enum FetchCurrencyRateError: Error {
+enum FetchExchangeRateError: Error {
     case networkError // 네트워크 문제
     case invalidData // 비어있거나 유효하지 않은 경우
 }
 
-extension FetchCurrencyRateError: LocalizedError {
+extension FetchExchangeRateError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .networkError:
