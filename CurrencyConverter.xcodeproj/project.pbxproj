@@ -50,6 +50,7 @@
 				Domain/Entities/ExchangeRateList.swift,
 				Domain/Error/FetchExchangeRateError.swift,
 				Domain/ExchangeRate/FetchExchangeRateUseCase.swift,
+				Domain/ExchangeRate/UpdateFavoriteUseCase.swift,
 				Domain/RepositoryProtocol/ExchangeRateRepository.swift,
 			);
 			target = C819A8B92E8BBB9A00B61261 /* CurrencyConverterTests */;

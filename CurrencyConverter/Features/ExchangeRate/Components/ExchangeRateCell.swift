@@ -42,7 +42,6 @@ final class ExchangeRateCell: UITableViewCell {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        updateUI()
     }
 
     private func updateUI() {

@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class DefaultExchangeRateRepository: ExchangeRateRepository {
+final actor DefaultExchangeRateRepository: ExchangeRateRepository {
     private let remoteDataSource: RemoteExchangeRateDataSource
     private let localDataSource: LocalExchangeRateDataSource
     private var cachedRates: [ExchangeRate] = []
@@ -21,8 +21,6 @@ final class DefaultExchangeRateRepository: ExchangeRateRepository {
     }
 
     func fetch() async throws(FetchExchangeRateError) -> [ExchangeRate] {
-        print("🔍 [Repository] 환율 데이터 조회 시작")
-
         if UserDefaultsStorage.shouldUpdateExchangeRate() || cachedRates.isEmpty {
             return try await fetchFromRemote()
         }
@@ -30,11 +28,26 @@ final class DefaultExchangeRateRepository: ExchangeRateRepository {
         return sortRates(cachedRates)
     }
 
+    func updateIsFavorite(
+        _ code: String,
+        isFavorite: Bool
+    ) async throws -> [ExchangeRate] {
+        // 캐시 업데이트
+        if let index = cachedRates.firstIndex(where: { $0.code == code }) {
+            cachedRates[index].isFavorite = isFavorite
+        }
 
+        // Local에 저장
+        try await localDataSource.toggleFavorite(code)
+
+        // 정렬 후 반환
+        cachedRates = sortRates(cachedRates)
+        return cachedRates
+    }
+    
     private func fetchFromRemote() async throws(FetchExchangeRateError) -> [ExchangeRate] {
         do {
             let remoteData = try await remoteDataSource.fetch().toDomain()
-            print("🌐 [Repository] Remote 데이터 개수: \(remoteData.rates.count)")
 
             let previousRates = cachedRates.isEmpty ? try? await localDataSource.loadRates() : cachedRates
             let updatedRates = compareRates(current: remoteData.rates, previous: previousRates)
@@ -60,7 +73,9 @@ final class DefaultExchangeRateRepository: ExchangeRateRepository {
         }
 
         return current.map { currentRate in
-            let previousRate = previous.first { $0.code == currentRate.code }?.rate ?? 0
+            let previousData = previous.first { $0.code == currentRate.code }
+            let previousRate = previousData?.rate ?? 0
+            currentRate.isFavorite = previousData?.isFavorite ?? false
             currentRate.isIncreasing = currentRate.rate == previousRate ? nil : currentRate.rate > previousRate
             return currentRate
         }

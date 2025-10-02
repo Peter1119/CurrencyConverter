@@ -10,7 +10,8 @@ import SnapKit
 
 final class ExchangeRateViewController: UIViewController {
     private let viewModel: ExchangeRateViewModel
-    
+    private var previousItems: [ExchangeRateCellModel] = []
+
     init(viewModel: ExchangeRateViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -40,15 +41,49 @@ final class ExchangeRateViewController: UIViewController {
         Task {
             await viewModel.send(.loadExchangeRates)
         }
-        
+
         configure()
         layout()
+        observeViewModel()
     }
-    
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
 
-        tableView.reloadData()
+    private func observeViewModel() {
+        // Observable 변경 감지
+        withObservationTracking {
+            _ = viewModel.state.items
+        } onChange: { [weak self] in
+            Task { @MainActor [weak self] in
+                self?.updateTableView()
+                self?.observeViewModel()
+            }
+        }
+    }
+
+    private func updateTableView() {
+        let currentItems = viewModel.state.items
+
+        // 이전 데이터가 없으면 그냥 reload
+        guard !previousItems.isEmpty else {
+            previousItems = currentItems
+            tableView.reloadData()
+            return
+        }
+
+        // 데이터 변경사항 계산
+        let previousIds = previousItems.map { $0.id }
+        let currentIds = currentItems.map { $0.id }
+
+        // ID 순서만 바뀐 경우 (즐겨찾기 토글) - 애니메이션과 함께 reload
+        if Set(previousIds) == Set(currentIds) {
+            UIView.transition(with: tableView, duration: 0.3, options: .curveEaseInOut) {
+                self.tableView.reloadData()
+            }
+        } else {
+            // 완전히 다른 데이터면 reload (애니메이션 없이)
+            tableView.reloadData()
+        }
+
+        previousItems = currentItems
     }
     
     func configure() {
@@ -115,5 +150,10 @@ extension ExchangeRateViewController: UISearchBarDelegate {
 }
 
 #Preview {
-    ExchangeRateViewController(viewModel: ExchangeRateViewModel(fetchExchangeRateUseCase: MockFetchExchangeRateUseCase()))
+    ExchangeRateViewController(
+        viewModel: ExchangeRateViewModel(
+            fetchExchangeRateUseCase: MockFetchExchangeRateUseCase(),
+            updateFavoriteUseCase: MockUpdateFavoriteUseCase()
+        )
+    )
 }

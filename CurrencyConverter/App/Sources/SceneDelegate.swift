@@ -29,8 +29,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             remoteDataSource: remoteDatasource,
             localDataSource: localDatasource
         )
-        let useCase = FetchExchangeRate(repository: repository)
-        let viewModel = ExchangeRateViewModel(fetchExchangeRateUseCase: useCase)
+        let fetchExchangeRateUseCase = FetchExchangeRate(repository: repository)
+        let updateFavoriteUseCase = UpdateFavorite(repository: repository)
+        let viewModel = ExchangeRateViewModel(
+            fetchExchangeRateUseCase: fetchExchangeRateUseCase,
+            updateFavoriteUseCase: updateFavoriteUseCase
+        )
         let viewController = ExchangeRateViewController(viewModel: viewModel)
 
         // Window 설정

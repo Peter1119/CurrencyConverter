@@ -30,12 +30,14 @@ class ExchangeRateCellModel {
         currency: String,
         description: String,
         rate: Double,
-        isIncreasing: Bool?
+        isIncreasing: Bool?,
+        isFavorite: Bool = false
     ) {
         self.currency = currency
         self.description = description
         self.rate = rate
         self.isIncreasing = isIncreasing
+        self.isFavorite = isFavorite
     }
 }
 
