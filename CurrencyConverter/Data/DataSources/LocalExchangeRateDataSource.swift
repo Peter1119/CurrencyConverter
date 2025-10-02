@@ -10,6 +10,7 @@ import CoreData
 
 protocol LocalExchangeRateDataSource {
     func saveRates(_ rates: [ExchangeRate]) async throws
+    /// 이전 환율 데이터를 불러옵니다.
     func loadRates() async throws -> [ExchangeRate]
     func toggleFavorite(_ code: String) async throws
     func getFavorites() async throws -> Set<String>

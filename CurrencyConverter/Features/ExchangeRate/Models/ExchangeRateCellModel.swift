@@ -20,9 +20,9 @@ class ExchangeRateCellModel {
         return String(format: "%.4f", rate)
     }
     var trendEmoji: String {
-        isIncreasing ? "🔼" : "🔽"
+        isIncreasing == nil ? " " : isIncreasing! ? "🔼" : "🔽"
     }
-    var isIncreasing: Bool
+    var isIncreasing: Bool?
     var isFavorite: Bool = false
     var onFavoriteTap: (() -> Void)?
 
@@ -30,7 +30,7 @@ class ExchangeRateCellModel {
         currency: String,
         description: String,
         rate: Double,
-        isIncreasing: Bool
+        isIncreasing: Bool?
     ) {
         self.currency = currency
         self.description = description

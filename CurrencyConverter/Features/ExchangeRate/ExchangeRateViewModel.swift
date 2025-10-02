@@ -42,22 +42,27 @@ final class ExchangeRateViewModel: ViewModelProtocol {
     func send(_ action: Action) async {
         switch action {
         case .loadExchangeRates:
-            let data = try? await fetchExchangeRateUseCase.execute()
-            let models: [ExchangeRateCellModel] = data?.rates.map {
-                ExchangeRateCellModel(
-                    currency: $0.code,
-                    description: $0.name,
-                    rate: $0.rate,
-                    isIncreasing: $0.isIncreasing ?? false
-                )
-            } ?? []
-            state.allItems = models.map { [weak self] model in
-                model.onFavoriteTap = {
-                    Task {
-                        await self?.send(.toggleFavorite(model.id))
-                    }
+            do {
+                let data = try await fetchExchangeRateUseCase.execute()
+                let models: [ExchangeRateCellModel] = data.map {
+                    ExchangeRateCellModel(
+                        currency: $0.code,
+                        description: $0.name,
+                        rate: $0.rate,
+                        isIncreasing: $0.isIncreasing
+                    )
                 }
-                return model
+                state.allItems = models.map { [weak self] model in
+                    model.onFavoriteTap = {
+                        Task {
+                            await self?.send(.toggleFavorite(model.id))
+                        }
+                    }
+                    return model
+                }
+            } catch {
+                print("❌ [ViewModel] 환율 데이터 로드 실패: \(error)")
+                state.allItems = []
             }
 
         case .toggleFavorite(let id):

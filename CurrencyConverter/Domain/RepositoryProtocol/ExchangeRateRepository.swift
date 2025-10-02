@@ -8,5 +8,5 @@
 import Foundation
 
 protocol ExchangeRateRepository {
-    func fetch() async throws -> ExchangeRateList
+    func fetch() async throws -> [ExchangeRate]
 }
