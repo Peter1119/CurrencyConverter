@@ -30,10 +30,3 @@ public struct ExchangeRateList {
         self.nextUpdateTime = nextUpdateTime
     }
 }
-
-
-public struct ExchangeRate {
-    let code: String
-    let name: String
-    let rate: Double
-}
