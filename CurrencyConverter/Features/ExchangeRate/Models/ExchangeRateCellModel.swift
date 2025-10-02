@@ -15,14 +15,17 @@ class ExchangeRateCellModel {
     }
     let currency: String
     let description: String
-    private let rate: Double
+    private let _rate: Double
+    var rate: Double {
+        return _rate
+    }
     var rateText: String {
-        return String(format: "%.4f", rate)
+        return String(format: "%.4f", _rate)
     }
     var trendEmoji: String {
-        isIncreasing ? "🔼" : "🔽"
+        isIncreasing == nil ? " " : isIncreasing! ? "🔼" : "🔽"
     }
-    var isIncreasing: Bool
+    var isIncreasing: Bool?
     var isFavorite: Bool = false
     var onFavoriteTap: (() -> Void)?
 
@@ -30,12 +33,14 @@ class ExchangeRateCellModel {
         currency: String,
         description: String,
         rate: Double,
-        isIncreasing: Bool
+        isIncreasing: Bool?,
+        isFavorite: Bool = false
     ) {
         self.currency = currency
         self.description = description
-        self.rate = rate
+        self._rate = rate
         self.isIncreasing = isIncreasing
+        self.isFavorite = isFavorite
     }
 }
 

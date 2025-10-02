@@ -9,19 +9,15 @@ import UIKit
 import SnapKit
 
 final class CalculatorViewController: UIViewController {
-    private let viewModel: CalculatorViewModel
+    let viewModel: CalculatorViewModel
+    weak var coordinator: ExchangeRateCoordinator?
 
-    init(
-        currency: String,
-        countryName: String,
-        exchangeRate: Double
-    ) {
-        self.viewModel = CalculatorViewModel(
-            currency: currency,
-            countryName: countryName,
-            exchangeRate: exchangeRate
-        )
+    init(viewModel: CalculatorViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
+
+        navigationItem.title = "환율 계산기"
+        navigationItem.largeTitleDisplayMode = .always
     }
 
     required init?(coder: NSCoder) {
@@ -87,13 +83,15 @@ final class CalculatorViewController: UIViewController {
 
         configure()
         layout()
+        observeViewModel()
+
+        // 데이터 로드
+        Task {
+            await viewModel.send(.loadExchangeRate(viewModel.state.currency))
+        }
     }
 
     private func configure() {
-        self.navigationItem.title = "환율 계산기"
-        currencyLabel.text = viewModel.state.currency
-        countryLabel.text = viewModel.state.countryName
-
         view.addSubview(labelStackView)
         view.addSubview(amountTextField)
         view.addSubview(convertButton)
@@ -104,6 +102,28 @@ final class CalculatorViewController: UIViewController {
 
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tapGesture)
+    }
+
+    private func observeViewModel() {
+        withObservationTracking {
+            _ = viewModel.state.currency
+            _ = viewModel.state.countryName
+            _ = viewModel.state.shouldPopViewController
+        } onChange: { [weak self] in
+            Task { @MainActor in
+                self?.updateUI()
+                self?.observeViewModel()
+            }
+        }
+    }
+
+    private func updateUI() {
+        currencyLabel.text = viewModel.state.currency
+        countryLabel.text = viewModel.state.countryName
+
+        if viewModel.state.shouldPopViewController {
+            coordinator?.popViewController()
+        }
     }
 
     private func layout() {
@@ -131,12 +151,16 @@ final class CalculatorViewController: UIViewController {
     }
 
     @objc private func textFieldDidChange() {
-        viewModel.send(.updateAmount(amountTextField.text ?? ""))
+        Task {
+            await viewModel.send(.updateAmount(amountTextField.text ?? ""))
+        }
     }
 
     @objc private func convertButtonTapped() {
-        viewModel.send(.convert)
-        resultLabel.text = viewModel.state.resultText
+        Task {
+            await viewModel.send(.convert)
+            resultLabel.text = viewModel.state.resultText
+        }
     }
 
     @objc private func dismissKeyboard() {
@@ -145,5 +169,11 @@ final class CalculatorViewController: UIViewController {
 }
 
 #Preview {
-    CalculatorViewController(currency: "USD", countryName: "미국 달러", exchangeRate: 1300.50)
+    CalculatorViewController(
+        viewModel: CalculatorViewModel(
+            currency: "USD",
+            countryName: "미국 달러",
+            exchangeRate: 1300.50
+        )
+    )
 }

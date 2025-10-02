@@ -41,6 +41,20 @@
 			);
 			target = C819A8A02E8BBB9800B61261 /* CurrencyConverter */;
 		};
+		C819AA1D2E8D211900B61261 /* Exceptions for "CurrencyConverter" folder in "CurrencyConverterTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Data/DTO/ExchangeRateResponseDTO.swift,
+				Data/Repository/DefaultExchangeRateRepository.swift,
+				Domain/Entities/ExchangeRate.swift,
+				Domain/Entities/ExchangeRateList.swift,
+				Domain/Error/FetchExchangeRateError.swift,
+				Domain/ExchangeRate/FetchExchangeRateUseCase.swift,
+				Domain/ExchangeRate/UpdateFavoriteUseCase.swift,
+				Domain/RepositoryProtocol/ExchangeRateRepository.swift,
+			);
+			target = C819A8B92E8BBB9A00B61261 /* CurrencyConverterTests */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -48,6 +62,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				C819A8CC2E8BBB9A00B61261 /* Exceptions for "CurrencyConverter" folder in "CurrencyConverter" target */,
+				C819AA1D2E8D211900B61261 /* Exceptions for "CurrencyConverter" folder in "CurrencyConverterTests" target */,
 			);
 			path = CurrencyConverter;
 			sourceTree = "<group>";
@@ -55,11 +70,6 @@
 		C819A8BD2E8BBB9A00B61261 /* CurrencyConverterTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = CurrencyConverterTests;
-			sourceTree = "<group>";
-		};
-		C819A8C72E8BBB9A00B61261 /* CurrencyConverterUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = CurrencyConverterUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -95,7 +105,6 @@
 			children = (
 				C819A8A32E8BBB9800B61261 /* CurrencyConverter */,
 				C819A8BD2E8BBB9A00B61261 /* CurrencyConverterTests */,
-				C819A8C72E8BBB9A00B61261 /* CurrencyConverterUITests */,
 				C819A8A22E8BBB9800B61261 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -171,9 +180,6 @@
 			);
 			dependencies = (
 				C819A8C62E8BBB9A00B61261 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				C819A8C72E8BBB9A00B61261 /* CurrencyConverterUITests */,
 			);
 			name = CurrencyConverterUITests;
 			packageProductDependencies = (
