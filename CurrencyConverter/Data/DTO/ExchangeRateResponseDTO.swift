@@ -26,7 +26,9 @@ struct ExchangeRateResponseDTO: Decodable {
 extension ExchangeRateResponseDTO {
     func toDomain() -> ExchangeRateList {
         return ExchangeRateList(
-            rates: self.rates,
+            rates: self.rates.map { code, rate in
+                ExchangeRate(code: code, rate: rate)
+            },
             lastUpdateTime: Date(timeIntervalSince1970: TimeInterval(self.timeLastUpdateUnix)),
             nextUpdateTime: Date(timeIntervalSince1970: TimeInterval(self.timeNextUpdateUnix))
         )

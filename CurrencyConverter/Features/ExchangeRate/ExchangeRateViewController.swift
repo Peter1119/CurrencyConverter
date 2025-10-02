@@ -9,11 +9,22 @@ import UIKit
 import SnapKit
 
 final class ExchangeRateViewController: UIViewController {
-    private let viewModel = ExchangeRateViewModel()
+    private let viewModel: ExchangeRateViewModel
+    
+    init(viewModel: ExchangeRateViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     private let tableView: UITableView = {
         let tableView = UITableView(frame: .zero)
         tableView.register(ExchangeRateCell.self)
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 60
         return tableView
     }()
     
@@ -104,5 +115,5 @@ extension ExchangeRateViewController: UISearchBarDelegate {
 }
 
 #Preview {
-    ExchangeRateViewController()
+    ExchangeRateViewController(viewModel: ExchangeRateViewModel(fetchExchangeRateUseCase: MockFetchExchangeRateUseCase()))
 }

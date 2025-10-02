@@ -13,20 +13,22 @@ public struct ExchangeRateList {
     let nextUpdateTime: Date
     
     init(
-        rates: [String : Double],
+        rates: [ExchangeRate],
         lastUpdateTime: Date,
         nextUpdateTime: Date
     ) {
-        let locale: Locale = Locale(identifier: "ko_KR")
-        self.rates = rates.map({ (code, rate) in
-            let localizedName = locale.localizedString(forCurrencyCode: code) ?? code
-            return ExchangeRate(
-                code: code,
-                name: localizedName,
-                rate: rate
-            )
-        })
+        self.rates = rates
         self.lastUpdateTime = lastUpdateTime
         self.nextUpdateTime = nextUpdateTime
+    }
+}
+
+extension ExchangeRateList {
+    static var mock: ExchangeRateList {
+        return ExchangeRateList(
+            rates: ExchangeRate.mockData,
+            lastUpdateTime: .now,
+            nextUpdateTime: .now
+        )
     }
 }

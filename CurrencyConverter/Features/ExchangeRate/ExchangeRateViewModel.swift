@@ -10,6 +10,12 @@ import Observation
 
 @MainActor
 final class ExchangeRateViewModel: ViewModelProtocol {
+    private let fetchExchangeRateUseCase: FetchExchangeRateUseCase
+    
+    init(fetchExchangeRateUseCase: FetchExchangeRateUseCase) {
+        self.fetchExchangeRateUseCase = fetchExchangeRateUseCase
+    }
+    
     @Observable
     class State {
         var allItems: [ExchangeRateCellModel] = []
@@ -36,7 +42,16 @@ final class ExchangeRateViewModel: ViewModelProtocol {
     func send(_ action: Action) async {
         switch action {
         case .loadExchangeRates:
-            state.allItems = ExchangeRateCellModel.mockData.map { [weak self] model in
+            let data = try? await fetchExchangeRateUseCase.execute()
+            let models: [ExchangeRateCellModel] = data?.rates.map {
+                ExchangeRateCellModel(
+                    currency: $0.code,
+                    description: $0.name,
+                    rate: $0.rate,
+                    isIncreasing: $0.isIncreasing ?? false
+                )
+            } ?? []
+            state.allItems = models.map { [weak self] model in
                 model.onFavoriteTap = {
                     Task {
                         await self?.send(.toggleFavorite(model.id))

@@ -22,3 +22,9 @@ struct FetchExchangeRate: FetchExchangeRateUseCase {
         return try await repository.fetch()
     }
 }
+
+struct MockFetchExchangeRateUseCase: FetchExchangeRateUseCase {
+    func execute() async throws -> ExchangeRateList {
+        return ExchangeRateList.mock
+    }
+}

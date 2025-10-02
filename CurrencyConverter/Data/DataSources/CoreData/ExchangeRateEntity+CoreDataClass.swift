@@ -13,3 +13,13 @@ import CoreData
 public class ExchangeRateEntity: NSManagedObject {
 
 }
+
+extension ExchangeRateEntity {
+    func toDomain() -> ExchangeRate {
+        return ExchangeRate(
+            code: self.code,
+            rate: self.rate
+        )
+    }
+}
+

@@ -16,7 +16,29 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         willConnectTo session: UISceneSession,
         options connectionOptions: UIScene.ConnectionOptions
     ) {
-        guard let _ = (scene as? UIWindowScene) else { return }
+        guard let windowScene = (scene as? UIWindowScene) else { return }
+
+        // Core Data Context 가져오기
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+        let context = appDelegate.persistentContainer.newBackgroundContext()
+
+        // Dependency Injection
+        let localDatasource = DefaultLocalExchangeRateDataSource(context: context)
+        let remoteDatasource = DefaultRemoteExchangeRateDataSource()
+        let repository = DefaultExchangeRateRepository(
+            remoteDataSource: remoteDatasource,
+            localDataSource: localDatasource
+        )
+        let useCase = FetchExchangeRate(repository: repository)
+        let viewModel = ExchangeRateViewModel(fetchExchangeRateUseCase: useCase)
+        let viewController = ExchangeRateViewController(viewModel: viewModel)
+
+        // Window 설정
+        let navigationController = UINavigationController(rootViewController: viewController)
+        let window = UIWindow(windowScene: windowScene)
+        window.rootViewController = navigationController
+        window.makeKeyAndVisible()
+        self.window = window
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
