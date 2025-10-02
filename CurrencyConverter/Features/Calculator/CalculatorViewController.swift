@@ -11,17 +11,12 @@ import SnapKit
 final class CalculatorViewController: UIViewController {
     private let viewModel: CalculatorViewModel
 
-    init(
-        currency: String,
-        countryName: String,
-        exchangeRate: Double
-    ) {
-        self.viewModel = CalculatorViewModel(
-            currency: currency,
-            countryName: countryName,
-            exchangeRate: exchangeRate
-        )
+    init(viewModel: CalculatorViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
+        
+        navigationItem.title = "환율 계산기"
+        navigationItem.largeTitleDisplayMode = .always
     }
 
     required init?(coder: NSCoder) {
@@ -90,7 +85,6 @@ final class CalculatorViewController: UIViewController {
     }
 
     private func configure() {
-        self.navigationItem.title = "환율 계산기"
         currencyLabel.text = viewModel.state.currency
         countryLabel.text = viewModel.state.countryName
 
@@ -145,5 +139,11 @@ final class CalculatorViewController: UIViewController {
 }
 
 #Preview {
-    CalculatorViewController(currency: "USD", countryName: "미국 달러", exchangeRate: 1300.50)
+    CalculatorViewController(
+        viewModel: CalculatorViewModel(
+            currency: "USD",
+            countryName: "미국 달러",
+            exchangeRate: 1300.50
+        )
+    )
 }

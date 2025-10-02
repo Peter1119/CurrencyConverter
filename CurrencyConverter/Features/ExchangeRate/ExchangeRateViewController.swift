@@ -15,6 +15,8 @@ final class ExchangeRateViewController: UIViewController {
     init(viewModel: ExchangeRateViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
+        self.navigationItem.title = "환율 정보"
+        self.view.backgroundColor = .systemBackground
     }
     
     required init?(coder: NSCoder) {
@@ -37,6 +39,8 @@ final class ExchangeRateViewController: UIViewController {
     // MARK: - View Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        navigationItem.largeTitleDisplayMode = .always
 
         Task {
             await viewModel.send(.loadExchangeRates)
@@ -108,7 +112,21 @@ final class ExchangeRateViewController: UIViewController {
 }
 
 extension ExchangeRateViewController: UITableViewDelegate {
-    
+    func tableView(
+        _ tableView: UITableView,
+        didSelectRowAt indexPath: IndexPath
+    ) {
+        tableView.deselectRow(at: indexPath, animated: true)
+
+        let model = viewModel.state.items[indexPath.row]
+        let calculatorViewModel = CalculatorViewModel(
+            currency: model.currency,
+            countryName: model.description,
+            exchangeRate: model.rate
+        )
+        let calculatorVC = CalculatorViewController(viewModel: calculatorViewModel)
+        navigationController?.pushViewController(calculatorVC, animated: true)
+    }
 }
 
 extension ExchangeRateViewController: UITableViewDataSource {
@@ -126,15 +144,6 @@ extension ExchangeRateViewController: UITableViewDataSource {
         let cell: ExchangeRateCell = tableView.dequeueReusableCell(for: indexPath)
         cell.configure(with: viewModel.state.items[indexPath.row])
         return cell
-    }
-
-    func tableView(
-        _ tableView: UITableView,
-        didSelectRowAt indexPath: IndexPath
-    ) {
-        let model = viewModel.state.items[indexPath.row]
-        // TODO: 화면 이동
-        print("셀 선택: \(model.currency)")
     }
 }
 
