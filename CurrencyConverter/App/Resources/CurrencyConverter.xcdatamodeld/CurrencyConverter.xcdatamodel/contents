@@ -17,4 +17,8 @@
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
+    <entity name="AppStateEntity" representedClassName="AppStateEntity" syncable="YES">
+        <attribute name="lastScreen" attributeType="String"/>
+        <attribute name="lastCurrencyCode" optional="YES" attributeType="String"/>
+    </entity>
 </model>

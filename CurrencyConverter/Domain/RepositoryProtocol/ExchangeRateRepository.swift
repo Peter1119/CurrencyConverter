@@ -10,4 +10,5 @@ import Foundation
 protocol ExchangeRateRepository {
     func fetch() async throws -> [ExchangeRate]
     func updateIsFavorite(_ code: String, isFavorite: Bool) async throws -> [ExchangeRate]
+    func getExchangeRate(code: String) async throws -> ExchangeRate
 }

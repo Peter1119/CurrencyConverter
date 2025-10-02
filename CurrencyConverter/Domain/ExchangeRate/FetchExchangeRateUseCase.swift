@@ -9,6 +9,7 @@ import Foundation
 
 protocol FetchExchangeRateUseCase {
     func execute() async throws -> [ExchangeRate]
+    func getSingleRate(_ code: String) async throws -> ExchangeRate
 }
 
 struct FetchExchangeRate: FetchExchangeRateUseCase {
@@ -21,10 +22,18 @@ struct FetchExchangeRate: FetchExchangeRateUseCase {
     func execute() async throws -> [ExchangeRate] {
         return try await repository.fetch()
     }
+    
+    func getSingleRate(_ code: String) async throws -> ExchangeRate {
+        try await self.repository.getExchangeRate(code: code)
+    }
 }
 
 struct MockFetchExchangeRateUseCase: FetchExchangeRateUseCase {
     func execute() async throws -> [ExchangeRate] {
         return ExchangeRate.mockData
+    }
+    
+    func getSingleRate(_ code: String) async throws -> ExchangeRate {
+        return .mockSingle
     }
 }

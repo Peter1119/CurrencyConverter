@@ -9,8 +9,9 @@ import UIKit
 import SnapKit
 
 final class ExchangeRateViewController: UIViewController {
-    private let viewModel: ExchangeRateViewModel
+    let viewModel: ExchangeRateViewModel
     private var previousItems: [ExchangeRateCellModel] = []
+    weak var coordinator: ExchangeRateCoordinator?
 
     init(viewModel: ExchangeRateViewModel) {
         self.viewModel = viewModel
@@ -56,11 +57,15 @@ final class ExchangeRateViewController: UIViewController {
         withObservationTracking {
             _ = viewModel.state.items
         } onChange: { [weak self] in
-            Task { @MainActor [weak self] in
-                self?.updateTableView()
+            Task { @MainActor in
+                self?.handleStateChange()
                 self?.observeViewModel()
             }
         }
+    }
+
+    private func handleStateChange() {
+        updateTableView()
     }
 
     private func updateTableView() {
@@ -119,13 +124,9 @@ extension ExchangeRateViewController: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
 
         let model = viewModel.state.items[indexPath.row]
-        let calculatorViewModel = CalculatorViewModel(
-            currency: model.currency,
-            countryName: model.description,
-            exchangeRate: model.rate
-        )
-        let calculatorVC = CalculatorViewController(viewModel: calculatorViewModel)
-        navigationController?.pushViewController(calculatorVC, animated: true)
+        Task {
+            await coordinator?.pushToCalculator(currencyCode: model.currency)
+        }
     }
 }
 

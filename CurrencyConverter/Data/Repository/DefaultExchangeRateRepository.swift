@@ -27,6 +27,14 @@ final actor DefaultExchangeRateRepository: ExchangeRateRepository {
 
         return sortRates(cachedRates)
     }
+    
+    func getExchangeRate(code: String) async throws -> ExchangeRate {
+        if let result = cachedRates.first(where: { $0.code == code }) {
+            return result
+        } else {
+            throw FetchExchangeRateError.invalidData
+        }
+    }
 
     func updateIsFavorite(
         _ code: String,
@@ -76,7 +84,15 @@ final actor DefaultExchangeRateRepository: ExchangeRateRepository {
             let previousData = previous.first { $0.code == currentRate.code }
             let previousRate = previousData?.rate ?? 0
             currentRate.isFavorite = previousData?.isFavorite ?? false
-            currentRate.isIncreasing = currentRate.rate == previousRate ? nil : currentRate.rate > previousRate
+
+            // 차이가 0.01 이하면 nil, 초과하면 상승/하락 표시
+            let difference = abs(currentRate.rate - previousRate)
+            if difference > 0.01 {
+                currentRate.isIncreasing = currentRate.rate > previousRate
+            } else {
+                currentRate.isIncreasing = nil
+            }
+
             return currentRate
         }
     }

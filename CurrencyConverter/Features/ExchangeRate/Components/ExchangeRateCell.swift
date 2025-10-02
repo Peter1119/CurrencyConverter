@@ -129,7 +129,11 @@ final class ExchangeRateCell: UITableViewCell {
             make.centerY.equalToSuperview()
             make.leading.greaterThanOrEqualTo(currencyStackView.snp.trailing).offset(16)
         }
-        
+
+        trendIndicatorLabel.snp.makeConstraints { make in
+            make.width.equalTo(20) // 이모지 너비 고정
+        }
+
         favoriteButton.snp.makeConstraints { make in
             make.size.equalTo(44)
         }
