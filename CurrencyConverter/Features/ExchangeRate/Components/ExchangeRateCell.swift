@@ -42,7 +42,6 @@ final class ExchangeRateCell: UITableViewCell {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        updateUI()
     }
 
     private func updateUI() {
@@ -119,14 +118,10 @@ final class ExchangeRateCell: UITableViewCell {
     }
     
     private func layout() {
-        contentView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-            make.height.equalTo(60)
-        }
-
         currencyStackView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(16)
             make.centerY.equalToSuperview()
+            make.verticalEdges.equalToSuperview().inset(8)
         }
 
         rightContentView.snp.makeConstraints { make in
@@ -135,8 +130,8 @@ final class ExchangeRateCell: UITableViewCell {
             make.leading.greaterThanOrEqualTo(currencyStackView.snp.trailing).offset(16)
         }
 
-        rateLabel.snp.makeConstraints { make in
-            make.width.equalTo(120)
+        trendIndicatorLabel.snp.makeConstraints { make in
+            make.width.equalTo(20) // 이모지 너비 고정
         }
 
         favoriteButton.snp.makeConstraints { make in

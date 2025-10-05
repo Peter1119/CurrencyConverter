@@ -9,11 +9,26 @@ import UIKit
 import SnapKit
 
 final class ExchangeRateViewController: UIViewController {
-    private let viewModel = ExchangeRateViewModel()
+    let viewModel: ExchangeRateViewModel
+    private var previousItems: [ExchangeRateCellModel] = []
+    weak var coordinator: ExchangeRateCoordinator?
+
+    init(viewModel: ExchangeRateViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+        self.navigationItem.title = "환율 정보"
+        self.view.backgroundColor = .systemBackground
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     private let tableView: UITableView = {
         let tableView = UITableView(frame: .zero)
         tableView.register(ExchangeRateCell.self)
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 60
         return tableView
     }()
     
@@ -26,18 +41,58 @@ final class ExchangeRateViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        navigationItem.largeTitleDisplayMode = .always
+
         Task {
             await viewModel.send(.loadExchangeRates)
         }
-        
+
         configure()
         layout()
+        observeViewModel()
     }
-    
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
 
-        tableView.reloadData()
+    private func observeViewModel() {
+        // Observable 변경 감지
+        withObservationTracking {
+            _ = viewModel.state.items
+        } onChange: { [weak self] in
+            Task { @MainActor in
+                self?.handleStateChange()
+                self?.observeViewModel()
+            }
+        }
+    }
+
+    private func handleStateChange() {
+        updateTableView()
+    }
+
+    private func updateTableView() {
+        let currentItems = viewModel.state.items
+
+        // 이전 데이터가 없으면 그냥 reload
+        guard !previousItems.isEmpty else {
+            previousItems = currentItems
+            tableView.reloadData()
+            return
+        }
+
+        // 데이터 변경사항 계산
+        let previousIds = previousItems.map { $0.id }
+        let currentIds = currentItems.map { $0.id }
+
+        // ID 순서만 바뀐 경우 (즐겨찾기 토글) - 애니메이션과 함께 reload
+        if Set(previousIds) == Set(currentIds) {
+            UIView.transition(with: tableView, duration: 0.3, options: .curveEaseInOut) {
+                self.tableView.reloadData()
+            }
+        } else {
+            // 완전히 다른 데이터면 reload (애니메이션 없이)
+            tableView.reloadData()
+        }
+
+        previousItems = currentItems
     }
     
     func configure() {
@@ -62,7 +117,17 @@ final class ExchangeRateViewController: UIViewController {
 }
 
 extension ExchangeRateViewController: UITableViewDelegate {
-    
+    func tableView(
+        _ tableView: UITableView,
+        didSelectRowAt indexPath: IndexPath
+    ) {
+        tableView.deselectRow(at: indexPath, animated: true)
+
+        let model = viewModel.state.items[indexPath.row]
+        Task {
+            await coordinator?.pushToCalculator(currencyCode: model.currency)
+        }
+    }
 }
 
 extension ExchangeRateViewController: UITableViewDataSource {
@@ -81,15 +146,6 @@ extension ExchangeRateViewController: UITableViewDataSource {
         cell.configure(with: viewModel.state.items[indexPath.row])
         return cell
     }
-
-    func tableView(
-        _ tableView: UITableView,
-        didSelectRowAt indexPath: IndexPath
-    ) {
-        let model = viewModel.state.items[indexPath.row]
-        // TODO: 화면 이동
-        print("셀 선택: \(model.currency)")
-    }
 }
 
 extension ExchangeRateViewController: UISearchBarDelegate {
@@ -104,5 +160,10 @@ extension ExchangeRateViewController: UISearchBarDelegate {
 }
 
 #Preview {
-    ExchangeRateViewController()
+    ExchangeRateViewController(
+        viewModel: ExchangeRateViewModel(
+            fetchExchangeRateUseCase: MockFetchExchangeRateUseCase(),
+            updateFavoriteUseCase: MockUpdateFavoriteUseCase()
+        )
+    )
 }
